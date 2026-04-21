@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tienda</title>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#f8f8f8;
+  color:#111;
+}
+
+/* LAYOUT */
+.layout{
+  display:grid;
+  grid-template-columns: 1fr;
+  min-height:100vh;
+}
+
+/* SIDEBAR */
+.sidebar{
+  display:none;
+  background:#111;
+  color:#fff;
+  padding:30px 20px;
+}
+
+.sidebar h2{
+  margin-bottom:30px;
+}
+
+.sidebar ul{
+  list-style:none;
+}
+
+.sidebar li{
+  margin:15px 0;
+  cursor:pointer;
+  opacity:.8;
+  transition:.2s;
+}
+
+.sidebar li:hover{
+  opacity:1;
+}
+
+/* HEADER */
+.header{
+  position:sticky;
+  top:0;
+  background:#fff;
+  padding:15px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #eee;
+  z-index:10;
+}
+
+.header h1{
+  font-size:20px;
+}
+
+/* SEARCH */
+.search{
+  display:flex;
+  align-items:center;
+  background:#f1f1f1;
+  border-radius:20px;
+  padding:8px 12px;
+}
+
+.search input{
+  border:none;
+  outline:none;
+  background:transparent;
+}
+
+/* CONTENT */
+.content{
+  padding:20px;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:20px;
+}
+.toast{
+  position:fixed;
+  bottom:80px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:#111;
+  color:#fff;
+  padding:14px 20px;
+  border-radius:30px;
+  font-size:14px;
+  opacity:0;
+  pointer-events:none;
+  transition:.3s;
+  box-shadow:0 5px 20px rgba(0,0,0,.2);
+}
+
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+/* CARD */
+.card{
+  background:#fff;
+  border-radius:16px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:.25s;
+  box-shadow:0 2px 10px rgba(0,0,0,.05);
+}
+
+.card:hover{
+  transform:translateY(-5px);
+}
+
+.card img{
+  width:100%;
+  height:180px;
+  object-fit:contain;
+  background:#fafafa;
+}
+
+.info{
+  padding:12px;
+}
+
+.info h4{
+  font-size:14px;
+}
+
+.price{
+  font-weight:bold;
+  margin-top:5px;
+}
+
+.btn{
+  margin-top:10px;
+  padding:10px;
+  background:#111;
+  color:#fff;
+  border-radius:8px;
+  text-align:center;
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+.modal-content{
+  background:#fff;
+  padding:20px;
+  border-radius:20px;
+  width:90%;
+  max-width:380px;
+  animation:fade .3s;
+}
+
+@keyframes fade{
+  from{opacity:0;transform:scale(.9);}
+  to{opacity:1;transform:scale(1);}
+}
+
+.modal-content img{
+  width:100%;
+  height:200px;
+  object-fit:contain;
+}
+
+/* QTY */
+.qty-box{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:15px;
+  margin:15px 0;
+}
+
+.qty-box button{
+  padding:8px 14px;
+  border:none;
+  background:#111;
+  color:#fff;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* BUY */
+.buy{
+  background:#e63946;
+  color:#fff;
+  padding:12px;
+  border-radius:10px;
+  text-align:center;
+  cursor:pointer;
+}
+
+/* NAV MOBILE */
+.nav{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:#fff;
+  display:flex;
+  justify-content:space-around;
+  padding:14px;
+  border-top:1px solid #eee;
+}
+
+.nav i{
+  font-size:20px;
+}
+
+/* DESKTOP */
+@media(min-width:900px){
+
+  .layout{
+    grid-template-columns:220px 1fr;
+  }
+
+  .sidebar{
+    display:block;
+  }
+
+  .nav{
+    display:none;
+  }
+
+  .content{
+    padding:40px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>Bodys</h2>
+  <ul>
+    <li onclick="location.href='index.html'">Inicio</li>
+    <li onclick="location.href='carrito.html'">Carrito</li>
+    <li onclick="location.href='perfil.html'">Perfil</li>
+  </ul>
+</div>
+
+<!-- MAIN -->
+<div>
+
+<div class="header">
+  <h1>Perfumes</h1>
+  <div class="search">
+<input id="searchInput" placeholder="Buscar...">
+    <i class="fa fa-search"></i>
+  </div>
+</div>
+
+<div class="content">
+  <div class="grid" id="products"></div>
+</div>
+
+</div>
+
+</div>
+<div id="toast" class="toast">Producto agregado 🛒</div>
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <img id="dImg">
+    <h2 id="dName"></h2>
+    <p id="dDesc"></p>
+    <h3 id="dPrice"></h3>
+
+    <div class="qty-box">
+      <button onclick="changeQty(-1)">-</button>
+      <span id="qty">1</span>
+      <button onclick="changeQty(1)">+</button>
+    </div>
+
+    <div class="buy" onclick="addToCart()">Agregar al carrito</div>
+  </div>
+</div>
+
+<!-- NAV MOBILE -->
+<div class="nav">
+  <i class="fa fa-home"></i>
+  <i class="fa fa-shopping-cart" onclick="location.href='carrito.html'"></i>
+  <i class="fa fa-user"></i>
+</div>
+
+<script>
+const data=[
+  {name:"Perfume Elegante",price:120,img:"1.jpeg",desc:"Fragancia elegante"},
+  {name:"Delicate Pink",price:90,img:"2.jpeg",desc:"Aroma dulce"},
+  {name:"Luxury Gold",price:150,img:"3.jpeg",desc:"Fragancia premium"},
+  {name:"Night Black",price:110,img:"4.jpeg",desc:"Aroma intenso"},
+  {name:"Soft Rose",price:95,img:"5.jpeg",desc:"Suave y femenino"},
+  {name:"Royal Oud",price:170,img:"6.jpeg",desc:"Exclusivo"}
+];
+
+let selected=null;
+let quantity=1;
+function render(filter=""){
+  let html="";
+  
+  let filtered = data.filter(p => 
+    p.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  if(filtered.length === 0){
+    products.innerHTML = "<p>No se encontraron productos</p>";
+    return;
+  }
+
+  filtered.forEach((p,i)=>{
+    html+=`
+    <div class="card" onclick="openDetail(${data.indexOf(p)})">
+      <img src="${p.img}">
+      <div class="info">
+        <h4>${p.name}</h4>
+        <div class="price">$${p.price}</div>
+        <div class="btn">Ver producto</div>
+      </div>
+    </div>`;
+  });
+
+  products.innerHTML=html;
+}
+const searchInput = document.getElementById("searchInput");
+
+searchInput.addEventListener("input", () => {
+  render(searchInput.value);
+});
+function openDetail(i){
+  selected=data[i];
+  quantity=1;
+  qty.innerText=1;
+
+  dImg.src=selected.img;
+  dName.innerText=selected.name;
+  dDesc.innerText=selected.desc;
+  dPrice.innerText="$"+selected.price;
+
+  modal.style.display="flex";
+}
+
+function changeQty(v){
+  quantity+=v;
+  if(quantity<1) quantity=1;
+  qty.innerText=quantity;
+}
+
+modal.onclick=(e)=>{
+  if(e.target.id==="modal"){
+    modal.style.display="none";
+  }
+};
+function showToast(msg){
+  const toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.classList.add("show");
+
+  setTimeout(()=>{
+    toast.classList.remove("show");
+  },2000);
+}
+
+function addToCart(){
+  let cart=JSON.parse(localStorage.getItem("cart"))||[];
+
+  let exist=cart.find(p=>p.name===selected.name);
+
+  if(exist){
+    exist.qty+=quantity;
+  }else{
+    cart.push({
+      name:selected.name,
+      price:selected.price,
+      img:selected.img,
+      qty:quantity
+    });
+  }
+
+  localStorage.setItem("cart",JSON.stringify(cart));
+
+showToast("Agregado al carrito 🛒");  modal.style.display="none";
+}
+
+render();
+</script>
+
+</body>
+</html>

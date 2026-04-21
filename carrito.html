@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carrito</title>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:#ffffff;
+}
+
+/* HEADER */
+.header{
+  padding:20px;
+  text-align:center;
+  font-size:20px;
+  font-weight:bold;
+  background:#fff;
+  border-bottom:1px solid #eee;
+}
+
+/* LISTA */
+#items{
+  padding:15px;
+}
+
+/* CARD */
+.card{
+  background:#fff;
+  border-radius:16px;
+  padding:15px;
+  margin-bottom:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.05);
+  animation:fade .3s;
+}
+
+@keyframes fade{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;}
+}
+
+.left{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.left img{
+  width:60px;
+  height:60px;
+  object-fit:contain;
+  background:#f2f2f2;
+  border-radius:10px;
+}
+
+.name{
+  font-weight:600;
+}
+
+.price{
+  font-size:13px;
+  opacity:.7;
+}
+
+/* QTY */
+.qty{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:5px;
+}
+
+.qty button{
+  width:28px;
+  height:28px;
+  border:none;
+  border-radius:6px;
+  background:#111;
+  color:#fff;
+  cursor:pointer;
+}
+
+/* DERECHA */
+.right{
+  text-align:right;
+}
+
+.subtotal{
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+.delete{
+  background:#e63946;
+  padding:8px;
+  border:none;
+  color:#fff;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* TOTAL */
+.total{
+  padding:20px;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+}
+
+/* BOTONES */
+.actions{
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.btn{
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  color:#fff;
+  font-size:15px;
+  cursor:pointer;
+}
+
+.whatsapp{background:#25D366;}
+.clear{background:#999;}
+.back{background:#111;}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  bottom:80px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:#111;
+  color:#fff;
+  padding:14px 20px;
+  border-radius:30px;
+  opacity:0;
+  transition:.3s;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+.empty{
+  text-align:center;
+  margin-top:50px;
+  opacity:.6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">Tu carrito</div>
+
+<div id="items"></div>
+
+<div class="total" id="total"></div>
+
+<div class="actions">
+  <button class="btn whatsapp" onclick="enviarWhatsApp()">
+    <i class="fa fa-whatsapp"></i> Finalizar pedido
+  </button>
+
+  <button class="btn clear" onclick="vaciarCarrito()">Vaciar carrito</button>
+
+  <button class="btn back" onclick="goBack()">Volver</button>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>function showToast(msg){
+  let t = document.getElementById("toast");
+  t.innerText = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2000);
+}
+
+/* LOAD CART PRO */
+function loadCart(){
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  let html = "";
+  let total = 0;
+
+  if(!Array.isArray(cart) || cart.length === 0){
+    items.innerHTML = "<p class='empty'>Tu carrito está vacío</p>";
+    totalEl.innerText = "";
+    return;
+  }
+
+  cart.forEach((p,i)=>{
+
+    // 🔥 NORMALIZAR (CLAVE)
+    let name = p.name || "Producto";
+    let price = Number(p.price) || 0;
+    let qty = Number(p.qty) || 1;
+    let img = p.img || "";
+
+    let subtotal = price * qty;
+    total += subtotal;
+
+    html += `
+    <div class="card">
+      <div class="left">
+        <img src="${img}">
+        <div>
+          <div class="name">${name}</div>
+          <div class="price">C$ ${price}</div>
+
+          <div class="qty">
+            <button onclick="changeQty(${i},-1)">-</button>
+            <span>${qty}</span>
+            <button onclick="changeQty(${i},1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="subtotal">C$ ${subtotal}</div>
+        <button class="delete" onclick="removeItem(${i})">
+          <i class="fa fa-trash"></i>
+        </button>
+      </div>
+    </div>`;
+  });
+
+  items.innerHTML = html;
+  totalEl.innerText = "Total: C$ " + total;
+}
+
+/* CAMBIAR CANTIDAD */
+function changeQty(i,val){
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  if(!cart[i]) return;
+
+  cart[i].qty = (Number(cart[i].qty) || 1) + val;
+
+  if(cart[i].qty <= 0){
+    cart.splice(i,1);
+    showToast("Producto eliminado");
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+  loadCart();
+}
+
+/* ELIMINAR */
+function removeItem(i){
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  if(!cart[i]) return;
+
+  cart.splice(i,1);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  loadCart();
+  showToast("Eliminado");
+}
+
+/* VACIAR */
+function vaciarCarrito(){
+  localStorage.removeItem("cart");
+  loadCart();
+  showToast("Carrito vacío");
+}
+
+/* VOLVER */
+function goBack(){
+  location.href="index.html";
+}
+
+/* WHATSAPP FACTURA PRO */
+function enviarWhatsApp(){
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  if(!Array.isArray(cart) || cart.length === 0){
+    showToast("Carrito vacío");
+    return;
+  }
+
+  let fecha = new Date();
+  let fechaStr = fecha.toLocaleDateString();
+  let horaStr = fecha.toLocaleTimeString();
+
+  let total = 0;
+
+  let mensaje = "";
+  mensaje += "PEDIDO BODYS\n";
+  mensaje += "--------------------------------\n";
+  mensaje += `Fecha: ${fechaStr}\n`;
+  mensaje += `Hora : ${horaStr}\n`;
+  mensaje += "--------------------------------\n";
+  mensaje += "Producto        Cant   Total\n";
+  mensaje += "--------------------------------\n";
+
+  cart.forEach(p=>{
+
+    // 🔥 NORMALIZAR
+    let name = p.name || "Producto";
+    let price = Number(p.price) || 0;
+    let qty = Number(p.qty) || 1;
+
+    let subtotal = price * qty;
+    total += subtotal;
+
+    let nombre = name.substring(0,14).padEnd(14," ");
+    let cant = String(qty).padEnd(6," ");
+
+    mensaje += `${nombre}${cant}C$${subtotal}\n`;
+  });
+
+  mensaje += "--------------------------------\n";
+  mensaje += `TOTAL: C$${total}\n`;
+  mensaje += "--------------------------------\n";
+  mensaje += "Gracias por tu compra 🛍️";
+
+  let url = "https://wa.me/50582337242?text=" + encodeURIComponent("```" + mensaje + "```");
+
+  window.open(url, "_blank");
+}
+
+/* INIT */
+const items = document.getElementById("items");
+const totalEl = document.getElementById("total");
+
+loadCart();
+</script>
+
+</body>
+</html>
