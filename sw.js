@@ -1,8 +1,8 @@
 const CACHE = "luve-v1";
 
-self.addEventListener("install", e => {
+self.addEventListener("install", e=>{
   e.waitUntil(
-    caches.open(CACHE).then(cache => {
+    caches.open(CACHE).then(cache=>{
       return cache.addAll([
         "./",
         "./index.html"
@@ -11,8 +11,8 @@ self.addEventListener("install", e => {
   );
 });
 
-self.addEventListener("fetch", e => {
+self.addEventListener("fetch", e=>{
   e.respondWith(
-    caches.match(e.request).then(res => res || fetch(e.request))
+    caches.match(e.request).then(res=>res || fetch(e.request))
   );
 });

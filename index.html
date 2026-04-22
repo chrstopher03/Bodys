@@ -449,29 +449,14 @@ function showToast(msg){
 
 render();
 updateCartCount(); // 🔥 al cargar
-/* ===================== */
-/* INSTALAR APP REAL */
-/* ===================== */
-
 let deferredPrompt;
-
 const installBtn = document.getElementById("installBtn");
 const installBox = document.getElementById("installContainer");
 
-/* Mostrar siempre */
+/* 🔥 mostrar siempre el botón */
 installBox.style.display = "flex";
 
-/* Detectar si ya está instalada */
-function isAppInstalled(){
-  return window.matchMedia('(display-mode: standalone)').matches;
-}
-
-/* Ocultar si ya está instalada */
-if(isAppInstalled()){
-  installBox.style.display = "none";
-}
-
-/* Evento clave */
+/* detectar instalación disponible */
 window.addEventListener("beforeinstallprompt", (e)=>{
   e.preventDefault();
   deferredPrompt = e;
@@ -479,40 +464,24 @@ window.addEventListener("beforeinstallprompt", (e)=>{
   installBtn.innerText = "Instalar ahora ✔";
 });
 
-/* BOTÓN */
+/* click instalar */
 installBtn.addEventListener("click", async ()=>{
 
-  if(!deferredPrompt){
-    // 🔥 aquí está el problema que tienes
-    installBtn.innerText = "No disponible ❌";
-    return;
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+
+  }else{
+    installBtn.innerText = "Abre en Chrome 📱";
   }
 
-  deferredPrompt.prompt();
-
-  const { outcome } = await deferredPrompt.userChoice;
-
-  if(outcome === "accepted"){
-    installBox.style.display = "none";
-  }
-
-  deferredPrompt = null;
 });
 
-/* Cuando se instala */
+/* si ya está instalada */
 window.addEventListener("appinstalled", ()=>{
   installBox.style.display = "none";
 });
-
-/* ===================== */
-/* SERVICE WORKER */
-/* ===================== */
-
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js")
-  .then(()=>console.log("SW OK"))
-  .catch(err=>console.log("SW ERROR:", err));
-}
 </script>
 
 </body>
