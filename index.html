@@ -7,8 +7,7 @@
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ff4d6d">
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 
@@ -144,26 +143,7 @@ body{
   border-radius:15px;
   padding:15px;
 }
-/* BOTÓN INSTALAR */
-.install-box{
-  padding:10px;
-  text-align:center;
-}
 
-.install-box button{
-  background:linear-gradient(135deg,#ff4d6d,#ff8fab);
-  color:#fff;
-  border:none;
-  padding:12px 20px;
-  border-radius:20px;
-  font-size:14px;
-  cursor:pointer;
-  box-shadow:0 5px 15px rgba(255,77,109,.3);
-}
-
-.install-box button:active{
-  transform:scale(.95);
-}
 /* TEXTO */
 .modal h2{
   font-family:'Playfair Display',serif;
@@ -298,9 +278,7 @@ body{
   <h1>LUVE</h1>
   <i class="fa fa-shopping-bag" onclick="location.href='carrito.html'"></i>
 </div>
-<div id="installContainer" class="install-box">
-  <button id="installBtn">Instalar App</button>
-</div>
+
 <div class="search">
   <input id="searchInput" placeholder="Buscar fragancias...">
 </div>
@@ -449,39 +427,6 @@ function showToast(msg){
 
 render();
 updateCartCount(); // 🔥 al cargar
-let deferredPrompt;
-const installBtn = document.getElementById("installBtn");
-const installBox = document.getElementById("installContainer");
-
-/* 🔥 mostrar siempre el botón */
-installBox.style.display = "flex";
-
-/* detectar instalación disponible */
-window.addEventListener("beforeinstallprompt", (e)=>{
-  e.preventDefault();
-  deferredPrompt = e;
-
-  installBtn.innerText = "Instalar ahora ✔";
-});
-
-/* click instalar */
-installBtn.addEventListener("click", async ()=>{
-
-  if(deferredPrompt){
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-
-  }else{
-    installBtn.innerText = "Abre en Chrome 📱";
-  }
-
-});
-
-/* si ya está instalada */
-window.addEventListener("appinstalled", ()=>{
-  installBox.style.display = "none";
-});
 </script>
 
 </body>
