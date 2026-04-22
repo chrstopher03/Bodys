@@ -450,42 +450,41 @@ function showToast(msg){
 render();
 updateCartCount(); // 🔥 al cargar
 /* ===================== */
-/* INSTALAR APP (PWA FINAL) */
+/* INSTALAR APP REAL */
 /* ===================== */
 
 let deferredPrompt;
+
 const installBtn = document.getElementById("installBtn");
 const installBox = document.getElementById("installContainer");
 
-/* mostrar botón siempre (UX tipo app) */
+/* Mostrar siempre */
 installBox.style.display = "flex";
 
-/* detectar si ya está instalada */
+/* Detectar si ya está instalada */
 function isAppInstalled(){
-  return window.matchMedia('(display-mode: standalone)').matches 
-      || window.navigator.standalone === true;
+  return window.matchMedia('(display-mode: standalone)').matches;
 }
 
-/* ocultar si ya está instalada */
+/* Ocultar si ya está instalada */
 if(isAppInstalled()){
   installBox.style.display = "none";
 }
 
-/* capturar evento REAL de instalación */
+/* Evento clave */
 window.addEventListener("beforeinstallprompt", (e)=>{
   e.preventDefault();
   deferredPrompt = e;
 
-  // ahora sí es instalable
-  installBtn.innerText = "Instalar ahora";
+  installBtn.innerText = "Instalar ahora ✔";
 });
 
-/* botón instalar */
+/* BOTÓN */
 installBtn.addEventListener("click", async ()=>{
 
-  // si no es instalable, no hace nada (sin alert como pediste)
   if(!deferredPrompt){
-    console.log("App aún no instalable");
+    // 🔥 aquí está el problema que tienes
+    installBtn.innerText = "No disponible ❌";
     return;
   }
 
@@ -500,19 +499,19 @@ installBtn.addEventListener("click", async ()=>{
   deferredPrompt = null;
 });
 
-/* cuando se instala */
+/* Cuando se instala */
 window.addEventListener("appinstalled", ()=>{
   installBox.style.display = "none";
 });
 
 /* ===================== */
-/* SERVICE WORKER (CLAVE) */
+/* SERVICE WORKER */
 /* ===================== */
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js")
-  .then(()=>console.log("SW listo"))
-  .catch(err=>console.log("Error SW:", err));
+  .then(()=>console.log("SW OK"))
+  .catch(err=>console.log("SW ERROR:", err));
 }
 </script>
 
