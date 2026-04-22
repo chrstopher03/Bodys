@@ -449,21 +449,16 @@ function showToast(msg){
 
 render();
 updateCartCount(); // 🔥 al cargar
-/* =========================
-   🔥 PWA INSTALACIÓN PRO
-========================= */
-
 let deferredPrompt;
 const installBtn = document.getElementById("installBtn");
 const installBox = document.getElementById("installContainer");
 
-/* Mostrar siempre (fallback) */
-installBox.style.display = "block";
+/* Ocultar al inicio */
+installBox.style.display = "none";
 
 /* Detecta si ya está instalada */
 function isAppInstalled(){
-  return window.matchMedia('(display-mode: standalone)').matches 
-         || window.navigator.standalone === true;
+  return window.matchMedia('(display-mode: standalone)').matches;
 }
 
 /* Si ya está instalada, ocultar */
@@ -471,33 +466,34 @@ if(isAppInstalled()){
   installBox.style.display = "none";
 }
 
-/* Evento real de instalación */
+/* Evento REAL de instalación */
 window.addEventListener("beforeinstallprompt", (e)=>{
   e.preventDefault();
   deferredPrompt = e;
+
+  // Mostrar botón solo cuando se pueda instalar
+  installBox.style.display = "block";
 });
 
 /* Click botón */
 installBtn.addEventListener("click", async ()=>{
-
-  if(deferredPrompt){
-    deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
-
-    if(choice.outcome === "accepted"){
-      installBox.style.display = "none";
-    }
-
-    deferredPrompt = null;
-
-  } else {
-    // 🔥 FALLBACK (si no aparece instalación automática)
-    alert("Para instalar:\n\n1. Toca los 3 puntos del navegador\n2. Presiona 'Agregar a pantalla de inicio'");
+  if(!deferredPrompt){
+    alert("Tu app aún no es instalable.\nAbre desde Chrome y espera unos segundos.");
+    return;
   }
 
+  deferredPrompt.prompt();
+
+  const { outcome } = await deferredPrompt.userChoice;
+
+  if(outcome === "accepted"){
+    installBox.style.display = "none";
+  }
+
+  deferredPrompt = null;
 });
 
-/* Cuando ya se instala */
+/* Cuando se instala */
 window.addEventListener("appinstalled", ()=>{
   installBox.style.display = "none";
 });
