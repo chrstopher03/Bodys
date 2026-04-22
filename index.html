@@ -450,15 +450,15 @@ function showToast(msg){
 render();
 updateCartCount(); // 🔥 al cargar
 /* =========================
-   🔥 PWA INSTALACIÓN FIX
+   🔥 PWA INSTALACIÓN PRO
 ========================= */
 
 let deferredPrompt;
 const installBtn = document.getElementById("installBtn");
 const installBox = document.getElementById("installContainer");
 
-/* Ocultar botón al inicio */
-installBox.style.display = "none";
+/* Mostrar siempre (fallback) */
+installBox.style.display = "block";
 
 /* Detecta si ya está instalada */
 function isAppInstalled(){
@@ -466,49 +466,45 @@ function isAppInstalled(){
          || window.navigator.standalone === true;
 }
 
-/* Si ya está instalada, no mostrar */
+/* Si ya está instalada, ocultar */
 if(isAppInstalled()){
   installBox.style.display = "none";
 }
 
-/* Evento REAL de instalación */
+/* Evento real de instalación */
 window.addEventListener("beforeinstallprompt", (e)=>{
   e.preventDefault();
   deferredPrompt = e;
-
-  // 🔥 Mostrar botón SOLO cuando esté disponible
-  installBox.style.display = "block";
 });
 
-/* Click instalar */
+/* Click botón */
 installBtn.addEventListener("click", async ()=>{
-  if(!deferredPrompt) return;
 
-  deferredPrompt.prompt();
-  const choice = await deferredPrompt.userChoice;
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    const choice = await deferredPrompt.userChoice;
 
-  if(choice.outcome === "accepted"){
-    installBox.style.display = "none";
+    if(choice.outcome === "accepted"){
+      installBox.style.display = "none";
+    }
+
+    deferredPrompt = null;
+
+  } else {
+    // 🔥 FALLBACK (si no aparece instalación automática)
+    alert("Para instalar:\n\n1. Toca los 3 puntos del navegador\n2. Presiona 'Agregar a pantalla de inicio'");
   }
 
-  deferredPrompt = null;
 });
 
-/* Cuando ya se instaló */
+/* Cuando ya se instala */
 window.addEventListener("appinstalled", ()=>{
   installBox.style.display = "none";
 });
 
-/* =========================
-   🔥 SERVICE WORKER (CLAVE)
-========================= */
-
+/* SERVICE WORKER */
 if("serviceWorker" in navigator){
-  window.addEventListener("load", ()=>{
-    navigator.serviceWorker.register("service-worker.js")
-      .then(()=>console.log("SW activo"))
-      .catch(err=>console.log("Error SW:", err));
-  });
+  navigator.serviceWorker.register("service-worker.js");
 }
 </script>
 
