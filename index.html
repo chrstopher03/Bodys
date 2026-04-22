@@ -449,46 +449,67 @@ function showToast(msg){
 
 render();
 updateCartCount(); // 🔥 al cargar
+/* =========================
+   🔥 PWA INSTALACIÓN FIX
+========================= */
 
 let deferredPrompt;
 const installBtn = document.getElementById("installBtn");
 const installBox = document.getElementById("installContainer");
 
+/* Ocultar botón al inicio */
+installBox.style.display = "none";
+
 /* Detecta si ya está instalada */
 function isAppInstalled(){
-  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  return window.matchMedia('(display-mode: standalone)').matches 
+         || window.navigator.standalone === true;
 }
 
-/* Oculta si ya está instalada */
+/* Si ya está instalada, no mostrar */
 if(isAppInstalled()){
   installBox.style.display = "none";
 }
 
-/* Evento para mostrar botón */
+/* Evento REAL de instalación */
 window.addEventListener("beforeinstallprompt", (e)=>{
   e.preventDefault();
   deferredPrompt = e;
+
+  // 🔥 Mostrar botón SOLO cuando esté disponible
   installBox.style.display = "block";
 });
 
 /* Click instalar */
 installBtn.addEventListener("click", async ()=>{
-  if(deferredPrompt){
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
+  if(!deferredPrompt) return;
 
-    if(outcome === "accepted"){
-      installBox.style.display = "none";
-    }
+  deferredPrompt.prompt();
+  const choice = await deferredPrompt.userChoice;
 
-    deferredPrompt = null;
+  if(choice.outcome === "accepted"){
+    installBox.style.display = "none";
   }
+
+  deferredPrompt = null;
 });
 
 /* Cuando ya se instaló */
 window.addEventListener("appinstalled", ()=>{
   installBox.style.display = "none";
 });
+
+/* =========================
+   🔥 SERVICE WORKER (CLAVE)
+========================= */
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("service-worker.js")
+      .then(()=>console.log("SW activo"))
+      .catch(err=>console.log("Error SW:", err));
+  });
+}
 </script>
 
 </body>
