@@ -449,36 +449,43 @@ function showToast(msg){
 
 render();
 updateCartCount(); // 🔥 al cargar
+/* ===================== */
+/* INSTALAR APP (PWA FINAL) */
+/* ===================== */
+
 let deferredPrompt;
 const installBtn = document.getElementById("installBtn");
 const installBox = document.getElementById("installContainer");
 
-/* Ocultar al inicio */
-installBox.style.display = "none";
+/* mostrar botón siempre (UX tipo app) */
+installBox.style.display = "flex";
 
-/* Detecta si ya está instalada */
+/* detectar si ya está instalada */
 function isAppInstalled(){
-  return window.matchMedia('(display-mode: standalone)').matches;
+  return window.matchMedia('(display-mode: standalone)').matches 
+      || window.navigator.standalone === true;
 }
 
-/* Si ya está instalada, ocultar */
+/* ocultar si ya está instalada */
 if(isAppInstalled()){
   installBox.style.display = "none";
 }
 
-/* Evento REAL de instalación */
+/* capturar evento REAL de instalación */
 window.addEventListener("beforeinstallprompt", (e)=>{
   e.preventDefault();
   deferredPrompt = e;
 
-  // Mostrar botón solo cuando se pueda instalar
-  installBox.style.display = "block";
+  // ahora sí es instalable
+  installBtn.innerText = "Instalar ahora";
 });
 
-/* Click botón */
+/* botón instalar */
 installBtn.addEventListener("click", async ()=>{
+
+  // si no es instalable, no hace nada (sin alert como pediste)
   if(!deferredPrompt){
-    alert("Tu app aún no es instalable.\nAbre desde Chrome y espera unos segundos.");
+    console.log("App aún no instalable");
     return;
   }
 
@@ -493,14 +500,19 @@ installBtn.addEventListener("click", async ()=>{
   deferredPrompt = null;
 });
 
-/* Cuando se instala */
+/* cuando se instala */
 window.addEventListener("appinstalled", ()=>{
   installBox.style.display = "none";
 });
 
-/* SERVICE WORKER */
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("service-worker.js");
+/* ===================== */
+/* SERVICE WORKER (CLAVE) */
+/* ===================== */
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js")
+  .then(()=>console.log("SW listo"))
+  .catch(err=>console.log("Error SW:", err));
 }
 </script>
 
